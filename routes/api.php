@@ -23,6 +23,7 @@ Route::group(['namespace' => 'Api'], function() {
    Route::group(['middleware' => 'auth:api'], function() {
     Route::get('/profile', 'UserController@userDetais');
     //Route::post('/logout', 'UserController@logout');
+    Route::post('/add-leave', 'LeaveController@store')->name('add-leave');
     });
 });
 
