@@ -11,26 +11,30 @@ use Validator;
 class UserController extends Controller
 {
    public function login(Request $request){
-       
        $validator = Validator::make($request->all(), [
-                    'email' => 'required',
-                       'password' => 'required'
+            'email' => 'required|email',
+            'password' => 'required'
         ]);
         if ($validator->fails()) {
-              $this->return['message'] = $validator->errors()->first();
-             $status = 200;
+            $this->return = array('message'=>$validator->errors()->first());
+            $status = 200;
         } else{
-        if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) {
-            $user=Auth::User();
-        $this->return['message'] = 'Login Successfull. ';
-        $this->return['jsonData'] = $user;
-        $this->return['jsonData']['token'] = 'Bearer ' . $user->createToken('laravel ')->accessToken;
-        $status = 200;
-        } else {
-             $this->return['message'] = 'Invalid credentials ';
-             
-             $status = 200;
-        }
+          if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) {
+            //print_r(Auth::user()); die;
+            if (Auth::user()->status == 1) {
+              //echo 'sdsssss'; die;
+              $user=Auth::User();
+              $this->return = array('status'=>200, 'message'=>trans('api.LOGIN_SUCCESS'), 'jsonData'=>$user);
+              //$this->return['jsonData']['token'] = 'Bearer ' . $user->createToken('laravel ')->accessToken;
+              $status = 200;
+            }else{
+              $this->return = array('status'=>200, 'message'=>trans('api.ACCOUNT_DEACTIVATE'));
+              $status = 200;
+            }
+          } else {
+               $this->return = array('status'=>200, 'message'=>trans('api.INVALID_CREDENTIALS'));
+               $status = 200;
+          }
         }
          return response()->json($this->return, $status);
     }
